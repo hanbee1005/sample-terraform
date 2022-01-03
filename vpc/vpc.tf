@@ -32,6 +32,7 @@ locals {
   }
 }
 
+### VPC ###
 resource "aws_vpc" "this" {
   ## cidr 를 지정해야 한다.
   cidr_block = "10.128.0.0/16"
@@ -43,6 +44,7 @@ resource "aws_vpc" "this" {
   }
 }
 
+### SUBNET ###
 resource "aws_subnet" "public" {
   count      = length(local.public_subnets)
   cidr_block = element(values(local.public_subnets), count.index)
@@ -68,6 +70,17 @@ resource "aws_subnet" "private" {
 
   tags = {
     Name = "${local.svc_nm}-sb-private-${element(values(local.azs), count.index)}",
+    Creator= local.creator,
+    Group = local.group
+  }
+}
+
+### INTERNET GATEWAY ###
+resource "aws_internet_gateway" "this" {
+  vpc_id = aws_vpc.this.id
+
+  tags = {
+    Name = "${local.svc_nm}-igw",
     Creator= local.creator,
     Group = local.group
   }
