@@ -6,7 +6,7 @@ provider "aws" {
 
 resource "aws_vpc" "this" {
   ## cidr 를 지정해야 한다.
-  cidr_block = "10.155.0.0/16"
+  cidr_block = "10.128.0.0/16"
 
   tags = {
     Name = "hson-tf-vpc",
