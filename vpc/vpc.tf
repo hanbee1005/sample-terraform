@@ -42,3 +42,33 @@ resource "aws_vpc" "this" {
     Group = local.group
   }
 }
+
+resource "aws_subnet" "public" {
+  count      = length(local.public_subnets)
+  cidr_block = element(values(local.public_subnets), count.index)
+  vpc_id     = aws_vpc.this.id
+
+  map_public_ip_on_launch = true
+  availability_zone       = element(keys(local.public_subnets), count.index)
+
+  tags = {
+    Name = "${local.svc_nm}-sb-public-${element(values(local.azs), count.index)}",
+    Creator= local.creator,
+    Group = local.group
+  }
+}
+
+resource "aws_subnet" "private" {
+  count      = length(local.private_subnets)
+  cidr_block = element(values(local.private_subnets), count.index)
+  vpc_id     = aws_vpc.this.id
+
+  map_public_ip_on_launch = true
+  availability_zone       = element(keys(local.private_subnets), count.index)
+
+  tags = {
+    Name = "${local.svc_nm}-sb-private-${element(values(local.azs), count.index)}",
+    Creator= local.creator,
+    Group = local.group
+  }
+}
