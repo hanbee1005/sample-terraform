@@ -115,3 +115,55 @@ resource "aws_route_table_association" "public" {
   subnet_id      = element(aws_subnet.public.*.id, count.index)
   route_table_id = aws_default_route_table.public.id
 }
+
+### ELASTIC IP for NAT ###
+resource "aws_eip" "nat" {
+  vpc = true
+
+  tags = {
+    Name = "${local.svc_nm}-eip",
+    Creator= local.creator,
+    Group = local.group
+  }
+}
+
+### NAT GATEWAY ###
+resource "aws_nat_gateway" "this" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = aws_subnet.public[0].id
+
+  tags = {
+    Name = "${local.svc_nm}-nat-gw",
+    Creator= local.creator,
+    Group = local.group
+  }
+}
+
+### PRIVATE ROUTING TABLE ###
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.this.id
+
+  tags = {
+    Name = "${local.svc_nm}-private",
+    Creator= local.creator,
+    Group = local.group
+  }
+}
+
+# 라우팅 테이블과 nat 게이트웨이 연결
+resource "aws_route" "nat_gateway" {
+  route_table_id         = aws_route_table.private.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.this.id
+
+  timeouts {
+    create = "5m"
+  }
+}
+
+# 라우팅 테이블과 서브넷 연결
+resource "aws_route_table_association" "private" {
+  count          = length(local.private_subnets)
+  subnet_id      = element(aws_subnet.private.*.id, count.index)
+  route_table_id = aws_route_table.private.id
+}
