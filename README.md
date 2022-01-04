@@ -2,10 +2,10 @@
 Terraform으로 AWS 리소스 생성
 
 ## 사전 준비
-1. Git 설치
-2. SSH 활성화
-3. AWS CLI 설치
-4. Terraform 설치
+1. AWS CLI 설치
+2. Terraform 설치     
+
+참고: https://developerbee.tistory.com/235
 
 ## 사용 방법
 1. .tf 파일을 작성한다.
